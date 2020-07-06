@@ -13,9 +13,9 @@ github:
     - jmap
 
 notifications:
-  commits:      commits@james.apache.org
-  issues:       server-dev@james.apache.org
-  pullrequests: server-dev@james.apache.org
+  commits:      site-dev@james.apache.org
+  issues:       site-dev@james.apache.org
+  pullrequests: site-dev@james.apache.org
   jira_options: link label comment
 
 # Staging and publishing profile for yourproject-website.git:
