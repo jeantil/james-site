@@ -92,16 +92,25 @@ pipeline {
         failure {
             echo "Failed "
             script {
-                emailext(
-                        subject: "[BUILD-UNSTABLE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
-                        body: """
-BUILD-UNSTABLE: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]':
-
-Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]</a>"
-""",
-                        to: "server-dev@james.apache.org",
-                        recipientProviders: [[$class: 'DevelopersRecipientProvider']]
-                )
+                if (env.BRANCH_NAME == "live" || env.BRANCH_NAME == "staging") {
+                    emailext(
+                            subject: "[BUILD-UNSTABLE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
+                            body: """
+        BUILD-UNSTABLE: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]':
+        Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]</a>"
+        """,
+                            recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+                    )
+                } else {
+                    emailext(
+                            subject: "[BUILD-UNSTABLE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
+                            body: """
+        BUILD-UNSTABLE: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]':
+        Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]</a>"
+        """,
+                            recipientProviders: [[$class: 'RequesterRecipientProvider']]
+                    )
+                }
             }
         }
 
@@ -114,17 +123,29 @@ Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BRANC
         success {
             echo "Success "
             script {
-                if ((currentBuild.previousBuild != null) && (currentBuild.previousBuild.result != 'SUCCESS')) {
-                    emailext (
-                            subject: "[BUILD-STABLE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
-                            body: """
-BUILD-STABLE: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]':
+                if (env.BRANCH_NAME == "live" || env.BRANCH_NAME == "staging") {
 
-Is back to normal.
-""",
-                            to: "server-dev@james.apache.org",
-                            recipientProviders: [[$class: 'DevelopersRecipientProvider']]
-                    )
+                    if ((currentBuild.previousBuild != null) && (currentBuild.previousBuild.result != 'SUCCESS')) {
+                        emailext(
+                                subject: "[BUILD-STABLE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
+                                body: """
+        BUILD-STABLE: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]':
+        Is back to normal.
+        """,
+                                recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+                        )
+                    }
+                } else {
+                    if ((currentBuild.previousBuild != null) && (currentBuild.previousBuild.result != 'SUCCESS')) {
+                        emailext(
+                                subject: "[BUILD-STABLE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
+                                body: """
+        BUILD-STABLE: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]':
+        Is back to normal.
+        """,
+                                recipientProviders: [[$class: 'RequesterRecipientProvider']]
+                        )
+                    }
                 }
             }
         }
