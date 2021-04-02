@@ -33,7 +33,7 @@ pipeline {
     }
 
     environment {
-        CI=true
+        CI = true
     }
 
     tools {
