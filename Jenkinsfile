@@ -28,6 +28,10 @@ pipeline {
         label AGENT_LABEL
     }
 
+    triggers {
+        upstream(upstreamProjects: '../ApacheJames/master', threshold: hudson.model.Result.SUCCESS)
+    }
+
     environment {
         CI=true
     }
